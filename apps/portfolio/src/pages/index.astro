@@ -1,5 +1,16 @@
 ---
-
+// apps/portfolio/src/pages/index.astro
+import { createClient } from '@supabase/supabase-js';
+const supabase = createClient(import.meta.env.PUBLIC_SUPABASE_URL, import.meta.env.PUBLIC_SUPABASE_ANON_KEY);
+const { data } = await supabase
+  .from('photo_variants')
+  .select('photo_id, kind, format, width, height, url')
+  .limit(90); // 30 photos × 3 formats
+const byPhoto = new Map<string, any[]>();
+for (const v of data ?? []) {
+  if (!byPhoto.has(v.photo_id)) byPhoto.set(v.photo_id, []);
+  byPhoto.get(v.photo_id).push(v);
+}
 ---
 
 <html lang="en">
@@ -11,6 +22,17 @@
 		<title>Astro</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
+	{Array.from(byPhoto.values()).map((variants) => {
+		const avif = variants.filter(v=>v.format==='avif').map(v=>`${v.url} ${v.width}w`).join(', ');
+		const webp = variants.filter(v=>v.format==='webp').map(v=>`${v.url} ${v.width}w`).join(', ');
+		const fallback = variants.find(v=>v.format==='jpeg' && v.kind==='web')?.url ?? variants.find(v=>v.format==='jpeg')?.url;
+		return (
+			<picture>
+				<source type="image/avif" srcset={avif} />
+				<source type="image/webp" srcset={webp} />
+				<img src={fallback} sizes="(max-width: 800px) 100vw, 800px" alt="" loading="lazy" decoding="async" />
+			</picture>
+		);
+	})}
 	</body>
 </html>
