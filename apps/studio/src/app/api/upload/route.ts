@@ -1,23 +1,8 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { createClient } from '@supabase/supabase-js';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { r2, R2_BUCKET_ORIGINALS, R2_BUCKET_VARIANTS } from '@/lib/r2';
 import sharp from 'sharp';
 import crypto from 'node:crypto';
-
-const s3 = new S3Client({
-  region: 'auto',
-  endpoint: process.env.R2_ENDPOINT,
-  forcePathStyle: true,                   // <- important for R2
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-  },
-});
-
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { persistSession: false } }
-);
 
 const WIDTHS = [400, 1280, 2048] as const;
 const FORMATS = ['avif', 'webp', 'jpeg'] as const;
@@ -30,8 +15,8 @@ export async function POST(req: Request) {
   const photoId = crypto.randomUUID();
 
   // 1) store original to bprod-originals ...
-  await s3.send(new PutObjectCommand({
-    Bucket: process.env.R2_BUCKET_ORIGINALS!,
+  await r2.send(new PutObjectCommand({
+    Bucket: R2_BUCKET_ORIGINALS!,
     Key: `originals/${photoId}.jpg`,
     Body: buf,
     ContentType: file.type || 'image/jpeg',
@@ -61,8 +46,8 @@ export async function POST(req: Request) {
       const hash = crypto.createHash('sha1').update(out).digest('hex').slice(0, 10);
       const key = `variants/${photoId}/${hash}_${width}.${format}`;
 
-      await s3.send(new PutObjectCommand({
-        Bucket: process.env.R2_BUCKET_VARIANTS!,
+      await r2.send(new PutObjectCommand({
+        Bucket: R2_BUCKET_VARIANTS!,
         Key: key,
         Body: out,
         ContentType: `image/${format}`,
@@ -82,7 +67,7 @@ export async function POST(req: Request) {
 
   // 3) Insert into Supabase
   // photos row
-  const { error: pErr } = await supabase.from('photos').insert({
+  const { error: pErr } = await supabaseAdmin.from('photos').insert({
     id: photoId,
     storage_key: `originals/${photoId}.jpg`,
     width: meta.width ?? null,
@@ -94,7 +79,7 @@ export async function POST(req: Request) {
   if (pErr) return Response.json({ error: pErr.message }, { status: 500 });
 
   // photo_variants rows
-  const { error: vErr } = await supabase.from('photo_variants').insert(
+  const { error: vErr } = await supabaseAdmin.from('photo_variants').insert(
     uploads.map(v => ({
       photo_id: photoId,
       kind: v.kind,
