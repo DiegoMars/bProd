@@ -2,6 +2,7 @@ packages:
   - apps/*
 
 onlyBuiltDependencies:
+  - core-js
   - esbuild
   - sharp
   - unrs-resolver
