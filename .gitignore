@@ -40,3 +40,5 @@ pnpm-debug.log*
 # Other caches
 .cache/
 .rpt2_cache/
+
+.mcp.json
