@@ -1,26 +1,34 @@
+@import url('https://fonts.googleapis.com/css?family=Fauna%20One:700|Fauna%20One:400');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Your palette */
+@theme {
+  --color-text: #d7eafe;
+  --color-background: #0a2243;
+  --color-primary: #74b3fb;
+  --color-secondary: #c0e4aa;
+  --color-accent: #c20003;
+
+  /* Font Sizes */
+  --text-sm: 0.750rem;
+  --text-base: 1rem;
+  --text-xl: 1.333rem;
+  --text-2xl: 1.777rem;
+  --text-3xl: 2.369rem;
+  --text-4xl: 3.158rem;
+  --text-5xl: 4.210rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Base page styling */
+html, body, #__next {
+  height: 100%;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: 'Fauna One', system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+}
+h1, h2, h3, h4, h5 {
+  font-family: 'Fauna One';
+  font-weight: 700;
 }
