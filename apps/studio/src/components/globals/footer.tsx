@@ -1,8 +1,9 @@
 'use client'
 
-export default function Header() {
+export default function Footer() {
   return (
-    <nav className='p-[1rem] bg-primary'>
-    </nav>
+    <footer className='p-[1rem] bg-text/5'>
+      <p className='text-center'>&copy; Becker&apos;s Photography</p>
+    </footer>
   )
 }
