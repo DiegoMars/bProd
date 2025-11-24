@@ -44,7 +44,7 @@ export async function GET() {
       const photoCount = collection.collection_photos?.length || 0
 
       // Get the first photo's thumbnail variant (prefer AVIF thumbnail, fallback to WebP or JPEG)
-      let featuredImageUrl = null
+      let featuredImageUrl = 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg'
       if (collection.collection_photos?.[0]?.photos) {
         const photo = collection.collection_photos[0].photos
         const variants = photo.photo_variants || []
