@@ -1,6 +1,5 @@
 // THIS WILL BE ACCESSED BY FRONT END
 // Here will attempt to access supabase for tokens
-// If expired locally or nonexistant, pull from supabase
 // If supabase ones expired, update them with adobe, save them locally and on supabase
 // If still no work, return "under maintenance" or code 503 (for service unavailable)
 
@@ -26,6 +25,7 @@ export function setStoredTokens(tokens: {
     // refresh a minute before actual expiry
     expires_at: Date.now() + tokens.expires_in * 1000 - 60_000,
   };
+  saveTokens(inMemoryTokens);
 }
 
 async function loadTokens(): Promise<StoredTokens | null> {
