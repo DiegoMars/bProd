@@ -44,14 +44,20 @@ async function loadTokens(): Promise<StoredTokens | null> {
 async function saveTokens(tokens: StoredTokens) {
   const { error } = await supabase
     .from("lightroom_tokens")
-    .upsert({
-      access_token: tokens.access_token,
-      refresh_token: tokens.refresh_token,
-      expires_at: new Date(tokens.expires_at).toISOString(),
-    });
+    .upsert(
+      {
+        label: "default",
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+        expires_at: new Date(tokens.expires_at).toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "label" }
+    );
   if (error) {
     console.error('Error saving tokens to Supabase', error);
   }
+  console.log(inMemoryTokens);
   inMemoryTokens = tokens;
 }
 
