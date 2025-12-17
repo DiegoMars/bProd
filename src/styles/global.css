@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Fauna%20One:700|Fauna%20One:400');
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /* https://www.realtimecolors.com/?colors=d7eafe-0a2243-74b3fb-c0e4aa-c20003&fonts=Poppins-Poppins */
 /* Your palette */
@@ -92,4 +93,77 @@ body {
 h1, h2, h3, h4, h5 {
   font-family: 'Fauna One';
   font-weight: 700;
+}
+
+/* Shadcn stuff */
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  /* Core surfaces */
+  --background: var(--color-background);
+  --foreground: var(--color-text);
+  --color-foreground: var(--foreground);
+
+  --card: var(--color-background-800);
+  --card-foreground: var(--color-text);
+
+  --popover: var(--color-background-800);
+  --popover-foreground: var(--color-text);
+
+  /* Brand colors */
+  --primary: var(--color-primary);
+  --primary-foreground: var(--color-background-50);
+
+  --secondary: var(--color-secondary);
+  --secondary-foreground: var(--color-background-950);
+
+  --accent: var(--color-accent);
+  --accent-foreground: var(--color-text-50);
+
+  /* Status / utility */
+  --muted: var(--color-background-700);
+  --muted-foreground: var(--color-text-200);
+
+  --destructive: var(--color-accent-500);
+  --border: var(--color-background-600);
+  --color-border: var(--border);
+  --input: var(--color-background-600);
+  --ring: var(--color-primary-400);
+
+  /* Charts – just pick nice spread from your palette */
+  --chart-1: var(--color-primary-400);
+  --chart-2: var(--color-secondary-400);
+  --chart-3: var(--color-accent-400);
+  --chart-4: var(--color-primary-200);
+  --chart-5: var(--color-secondary-200);
+
+  /* Sidebar tokens */
+  --sidebar: var(--color-background-900);
+  --sidebar-foreground: var(--color-text);
+  --sidebar-primary: var(--color-primary);
+  --sidebar-primary-foreground: var(--color-background-950);
+  --sidebar-accent: var(--color-accent);
+  --sidebar-accent-foreground: var(--color-text-50);
+  --sidebar-border: var(--color-background-700);
+  --sidebar-ring: var(--color-primary-400);
+}
+
+/* Base (light) theme values – keep it minimal and derived from your palette */
+:root {
+  --radius: 0.625rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
