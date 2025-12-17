@@ -1,8 +1,4 @@
-// THIS WILL BE ACCESSED BY FRONT END
-// Here will attempt to access supabase for tokens
-// If supabase ones expired, update them with adobe, save them locally and on supabase
-// If still no work, return "under maintenance" or code 503 (for service unavailable)
-
+import { supabase } from "./supabase";
 const IMS_TOKEN_URL = "https://ims-na1.adobelogin.com/ims/token";
 
 type StoredTokens = {
@@ -11,7 +7,6 @@ type StoredTokens = {
   expires_at: number; // unix ms timestamp
 };
 
-// TODO: Replace this with a real DB / KV store + encryption at rest.
 let inMemoryTokens: StoredTokens | null = null;
 
 export function setStoredTokens(tokens: {
@@ -30,11 +25,33 @@ export function setStoredTokens(tokens: {
 
 async function loadTokens(): Promise<StoredTokens | null> {
   // TODO: load from your DB / secrets store
+  const { data, error } = await supabase
+    .from("lightroom_tokens")
+    .select()
+    .single();
+  if (error) {
+    throw new Error("Failed to load from Supabase");
+  }
+  inMemoryTokens = {
+    access_token: data.access_token,
+    refresh_token: data.refresh_token,
+    // refresh a minute before actual expiry
+    expires_at: new Date(data.expires_at).getTime(),
+  };
   return inMemoryTokens;
 }
 
 async function saveTokens(tokens: StoredTokens) {
-  // TODO: persist to your DB / secrets store
+  const { error } = await supabase
+    .from("lightroom_tokens")
+    .upsert({
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      expires_at: new Date(tokens.expires_at).toISOString(),
+    });
+  if (error) {
+    console.error('Error saving tokens to Supabase', error);
+  }
   inMemoryTokens = tokens;
 }
 

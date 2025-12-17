@@ -7,8 +7,6 @@ const IMS_AUTH_URL = "https://ims-na1.adobelogin.com/ims/authorize";
 
 export const GET: APIRoute = async ({ url, redirect }) => {
   const adminSecret = url.searchParams.get("secret");
-  console.log(adminSecret);
-  console.log(import.meta.env.ADOBE_CLIENT_SECRET);
   if (adminSecret !== import.meta.env.ADOBE_CLIENT_SECRET) {
     return new Response("Unauthorized", { status: 401 });
   }
