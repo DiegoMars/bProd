@@ -1,0 +1,24 @@
+---
+const secret = import.meta.env.ADOBE_CLIENT_SECRET;
+const connectUrl = `../../api/auth/adobe/connect?secret=${encodeURIComponent(secret)}`;
+---
+<nav class="bg-background border-b border-primary py-[1rem] px-[1.5rem] flex justify-between *:my-auto">
+  <a href="/admin">
+    <h1 class="text-2xl">Photo Admin Panel</h1>
+  </a>
+  <a href={connectUrl} target="/blank" class="bg-secondary h-auto p-[0.5rem] text-text-900 font-bold rounded-2xl border-[0.25rem] border-secondary hover:bg-text-900 hover:text-secondary duration-300">
+    <button class="">
+      Update Tokens
+    </button>
+  </a>
+</nav>
+<div class="flex flex-row grow">
+  <nav class="bg-background-900 border-r border-primary p-[1.5rem] flex flex-col gap-[0.5rem] *:hover:underline *:text-lg">
+    <a href="/admin/photos">Photos</a>
+    <a href="/admin/collections">Collections</a>
+    <a href="/admin/orders">Orders</a>
+  </nav>
+  <div class="p-[1.5rem] w-full">
+    <slot />
+  </div>
+</div>

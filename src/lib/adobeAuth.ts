@@ -57,7 +57,6 @@ async function saveTokens(tokens: StoredTokens) {
   if (error) {
     console.error('Error saving tokens to Supabase', error);
   }
-  console.log(inMemoryTokens);
   inMemoryTokens = tokens;
 }
 
