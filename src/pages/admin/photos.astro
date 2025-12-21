@@ -1,5 +1,38 @@
 ---
 import Layout from '@/layouts/AdminLayout.astro';
+import { supabase } from "@/lib/supabase";
+
+const accessToken = Astro.cookies.get("sb-access-token");
+const refreshToken = Astro.cookies.get("sb-refresh-token");
+
+if (!accessToken || !refreshToken) {
+  return Astro.redirect("/admin/signin");
+}
+
+let session;
+try {
+  session = await supabase.auth.setSession({
+    refresh_token: refreshToken.value,
+    access_token: accessToken.value,
+  });
+  if (session.error) {
+    Astro.cookies.delete("sb-access-token", {
+      path: "/admin",
+    });
+    Astro.cookies.delete("sb-refresh-token", {
+      path: "/admin",
+    });
+    return Astro.redirect("/admin/signin");
+  }
+} catch (error) {
+  Astro.cookies.delete("sb-access-token", {
+    path: "/admin",
+  });
+  Astro.cookies.delete("sb-refresh-token", {
+    path: "/admin",
+  });
+  return Astro.redirect("/admin/signin");
+}
 ---
 
 <Layout title="Photos">

@@ -1,0 +1,22 @@
+---
+import Layout from "@/layouts/SignInLayout.astro";
+const { cookies, redirect } = Astro;
+const accessToken = cookies.get("sb-access-token");
+const refreshToken = cookies.get("sb-refresh-token");
+if (accessToken && refreshToken) {
+  return redirect("/admin");
+}
+---
+<Layout title="Admin">
+  <!-- From Uiverse.io by themrsami --> 
+  <div class="flex flex-col items-center justify-center h-screen">
+    <div class="w-full max-w-md bg-gray-800 rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-gray-200 mb-4">Login</h2>
+      <form action="/api/auth/adminSignIn" method="post" class="flex flex-col">
+        <input type="email" name="email" id="email" placeholder="Email address" class="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" />
+        <input name="password" id="password" placeholder="Password" class="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150" type="password">
+        <button class="bg-primary-500 font-bold py-2 px-4 rounded-md mt-4 hover:bg-primary-600 transition ease-in-out duration-150" type="submit">Login</button>
+      </form>
+    </div>
+  </div>
+</Layout>

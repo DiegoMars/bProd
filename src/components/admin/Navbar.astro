@@ -1,6 +1,6 @@
 ---
 const secret = import.meta.env.ADOBE_CLIENT_SECRET;
-const connectUrl = `../../api/auth/adobe/connect?secret=${encodeURIComponent(secret)}`;
+const connectUrl = `/api/auth/adobe/connect?secret=${encodeURIComponent(secret)}`;
 ---
 <nav class="bg-background border-b border-primary py-[1rem] px-[1.5rem] flex justify-between *:my-auto">
   <a href="/admin">
@@ -13,10 +13,19 @@ const connectUrl = `../../api/auth/adobe/connect?secret=${encodeURIComponent(sec
   </a>
 </nav>
 <div class="flex flex-row grow">
-  <nav class="bg-background-900 border-r border-primary p-[1.5rem] flex flex-col gap-[0.5rem] *:hover:underline *:text-lg">
-    <a href="/admin/photos">Photos</a>
-    <a href="/admin/collections">Collections</a>
-    <a href="/admin/orders">Orders</a>
+  <nav class="bg-background-900 border-r border-primary p-[1.5rem] flex flex-col justify-between">
+    <div class="flex flex-col gap-[0.5rem] *:hover:underline *:text-lg">
+      <a href="/admin/photos">Photos</a>
+      <a href="/admin/collections">Collections</a>
+      <a href="/admin/orders">Orders</a>
+    </div>
+    <div class="flex flex-col gap-[0.5rem]">
+      <a href="/api/auth/adminSignOut" class="bg-accent-500 p-[0.5rem] text-text font-bold rounded-2xl border-[0.25rem] border-accent-500 hover:bg-text-900 hover:text-accent-500 duration-300">
+        <button>
+          <p>Sign Out</p>
+        </button>
+      </a>
+    </div>
   </nav>
   <div class="p-[1.5rem] w-full">
     <slot />
