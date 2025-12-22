@@ -1,6 +1,9 @@
 import { supabase } from "./supabase";
 const IMS_TOKEN_URL = "https://ims-na1.adobelogin.com/ims/token";
 
+export const base = "https://lr.adobe.io/v2";
+export const key = import.meta.env.ADOBE_CLIENT_ID;
+
 type StoredTokens = {
   access_token: string;
   refresh_token?: string;
@@ -8,6 +11,11 @@ type StoredTokens = {
 };
 
 let inMemoryTokens: StoredTokens | null = null;
+
+export function parseJson(text: string) {
+  const cleaned = text.replace(/^while\s*\(\s*1\s*\)\s*\{\s*\}\s*/, "");
+  return JSON.parse(cleaned);
+}
 
 export function setStoredTokens(tokens: {
   access_token: string;
@@ -18,7 +26,7 @@ export function setStoredTokens(tokens: {
     access_token: tokens.access_token,
     refresh_token: tokens.refresh_token,
     // refresh a minute before actual expiry
-    expires_at: Date.now() + tokens.expires_in * 1000 - 60_000,
+    expires_at: Date.now() + tokens.expires_in - 60_000,
   };
   saveTokens(inMemoryTokens);
 }
@@ -70,7 +78,8 @@ export async function getAccessToken(): Promise<string> {
   }
 
   const now = Date.now();
-  const stillValid = now < tokens.expires_at;
+  const expiration = (new Date(tokens.expires_at)).getTime();
+  const stillValid = now < expiration;
 
   if (stillValid) {
     return tokens.access_token;
@@ -113,4 +122,34 @@ export async function getAccessToken(): Promise<string> {
 
   await saveTokens(updated);
   return updated.access_token;
+}
+
+export async function getCatalogID(accessToken: string) {
+    const catalogResp = await fetch(`${base}/catalog`, {
+      headers: { "X-API-Key": key, Authorization: `Bearer ${accessToken}` },
+    });
+
+    const catalogText = await catalogResp.text();
+    if (!catalogResp.ok) {
+      return {
+        ok: false as const,
+        status: catalogResp.status || 500,
+        message: `Catalog fetch failed: ${JSON.stringify(parseJson(catalogText), null, 2)}`
+      };
+    }
+
+    const catalogJson = parseJson(catalogText);
+    const catalogId = catalogJson?.id;
+    if (!catalogId) {
+      return {
+        ok: false as const,
+        status: 500,
+        message: `No catalog id found: ${JSON.stringify(catalogJson)}`
+      };
+    }
+    return {
+      ok: true as const,
+      status: 200 as const,
+      catalogId
+    };
 }

@@ -1,12 +1,12 @@
 import type { APIRoute as APIRouteCallback } from "astro";
-import { setStoredTokens } from "../../../../lib/adobeAuth";
+import { setStoredTokens } from "@/lib/adobeAuth";
 
 const IMS_TOKEN_URL_CALLBACK = "https://ims-na1.adobelogin.com/ims/token";
 
 type TokenResponse = {
   access_token: string;
   refresh_token?: string;
-  expires_in: number;
+  expires_in: number; // Note that this is in ms, I think the default is an hour
   token_type: string;
 };
 

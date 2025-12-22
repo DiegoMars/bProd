@@ -1,53 +1,35 @@
-import type { APIRoute } from "astro";
-import { getAccessToken } from "@/lib/adobeAuth";
+import { base, key, getCatalogID, getAccessToken, parseJson } from "@/lib/adobeAuth";
 
-const base = "https://lr.adobe.io/v2";
-const key = import.meta.env.ADOBE_CLIENT_ID;
-
-function parseJson(text: string) {
-  const cleaned = text.replace(/^while\s*\(\s*1\s*\)\s*\{\s*\}\s*/, "");
-  return JSON.parse(cleaned);
-}
-
-export async function getPhotos() {
+export async function getAlbums() {
   try {
     const accessToken = await getAccessToken();
+    const catalogIdResp = await getCatalogID(accessToken);
 
-    // 1) Get the user's (single) catalog metadata
-    const catalogResp = await fetch(`${base}/catalog`, {
-      headers: {
-        "X-API-Key": key,
-        Authorization: `Bearer ${accessToken}`,
-      },
+    if (!catalogIdResp.ok) {
+      return {
+        ok: false as const,
+        status: catalogIdResp.status || 500,
+        message: `Catalog Id Error: ${catalogIdResp.message}`
+      };
+    }
+    const catalogId = catalogIdResp.catalogId;
+    console.log("catalogId: " + JSON.stringify(catalogId, null, 2))
+
+    const albumsReqURL = `${base}/catalogs/${catalogId}/albums`;
+    console.log(albumsReqURL);
+    const albumsResp = await fetch(albumsReqURL, {
+      headers: { "X-API-Key": key, Authorization: `Bearer ${accessToken}` },
     });
 
-    const catalogText = await catalogResp.text();
-    if (!catalogResp.ok) {
-      return new Response(`Catalog fetch failed: ${catalogText}`, { status: 500 });
+    const assetsJson = parseJson(await albumsResp.text());
+    if (!albumsResp.ok) {
+      return {
+        ok: false as const,
+        status: albumsResp.status || 500,
+        message: `Assets fetch failed: ${JSON.stringify(assetsJson, null, 2)}`
+      };
     }
 
-    const catalogJson = parseJson(catalogText);
-    const catalogId = catalogJson?.id;
-    if (!catalogId) {
-      return new Response(`No catalog id found: ${JSON.stringify(catalogJson)}`, {
-        status: 500,
-      });
-    }
-
-    // 2) Fetch assets from that catalog
-    const assetsResp = await fetch(`${base}/catalogs/${catalogId}/assets?limit=50`, {
-      headers: {
-        "X-API-Key": key,
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    const assetsText = await assetsResp.text();
-    if (!assetsResp.ok) {
-      return new Response(`Assets fetch failed: ${assetsText}`, { status: 500 });
-    }
-
-    const assetsJson = parseJson(assetsText);
     const items = assetsJson?.resources ?? [];
 
     const photos = items.map((asset: any) => ({
@@ -58,14 +40,18 @@ export async function getPhotos() {
       metadata: asset.payload ?? {},
     }));
 
-    return new Response(JSON.stringify({ catalogId, photos }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return {
+      ok: true as const,
+      status: 200 as const,
+      catalogId,
+      photos
+    };
   } catch (err: any) {
     console.error(err);
-    return new Response(`Error: ${err?.message ?? "unknown error"}`, {
+    return {
+      ok: false as const,
       status: 500,
-    });
+      message: `Error: ${err?.message ?? "unknown error"}`
+    };
   }
-};
+}

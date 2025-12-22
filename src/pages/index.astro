@@ -1,11 +1,22 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import { getPhotos } from '@/pages/api/photos';
-const data = await getPhotos();
-const photos = await data.json();
-console.log(photos);
+import { getAlbums } from '@/pages/api/photos';
+
+// States
+let failed: boolean = false;
+
+const result = await getAlbums();
+if (!result.ok) {
+  failed = true;
+}
+console.log(result.photos)
 ---
 
 <Layout>
-	<h1>Astro</h1>
+  {failed ? (
+    <p>{result.status}</p>
+    <p>{result.message}</p>
+  ) : (
+    <h1>Good Status</h1>
+  )}
 </Layout>
