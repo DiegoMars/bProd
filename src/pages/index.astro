@@ -1,5 +1,9 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import { getPhotos } from '@/pages/api/photos';
+const data = await getPhotos();
+const photos = await data.json();
+console.log(photos);
 ---
 
 <Layout>

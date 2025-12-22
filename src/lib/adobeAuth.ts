@@ -29,14 +29,17 @@ async function loadTokens(): Promise<StoredTokens | null> {
     .from("lightroom_tokens")
     .select()
     .single();
-  if (error) {
-    throw new Error("Failed to load from Supabase");
+  if (error || !data) {
+    throw new Error(`Failed to load from Supabase: ${error?.message ?? "no row"}`);
+  }
+  const expiresMs = new Date(data.expires_at).getTime();
+  if (!Number.isFinite(expiresMs)) {
+    throw new Error(`Invalid expires_at in DB: ${data.expires_at}`);
   }
   inMemoryTokens = {
     access_token: data.access_token,
-    refresh_token: data.refresh_token,
-    // refresh a minute before actual expiry
-    expires_at: new Date(data.expires_at).getTime(),
+    refresh_token: data.refresh_token ?? undefined,
+    expires_at: expiresMs,
   };
   return inMemoryTokens;
 }
@@ -67,7 +70,7 @@ export async function getAccessToken(): Promise<string> {
   }
 
   const now = Date.now();
-  const stillValid = now < tokens.expires_at || !tokens.refresh_token;
+  const stillValid = now < tokens.expires_at;
 
   if (stillValid) {
     return tokens.access_token;
