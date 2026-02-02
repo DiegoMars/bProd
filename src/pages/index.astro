@@ -1,15 +1,28 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import { getAlbums } from '@/pages/api/photos';
+import { getAlbums, getAlbum } from '@/pages/api/photos';
 
 // States
 let failed: boolean = false;
 
-const result = await getAlbums();
-if (!result.ok) {
-  failed = true;
-}
-console.log(result.photos)
+// const result = await getAlbums();
+// let links = []
+// if (!result.ok) {
+//   failed = true;
+// } else {
+//   let counter: number = 0;
+//   for (let album of result.albums) {
+//     links.push(album.links);
+//     counter++;
+//   }
+//   // console.log(links);
+//   // console.log(counter);
+// }
+// console.log(result.albums);
+
+let id = "b829975c1a7445559f6c6291b9e6487c"
+const result = await getAlbum(id);
+console.log(result)
 ---
 
 <Layout>

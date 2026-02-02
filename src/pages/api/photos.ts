@@ -13,10 +13,8 @@ export async function getAlbums() {
       };
     }
     const catalogId = catalogIdResp.catalogId;
-    console.log("catalogId: " + JSON.stringify(catalogId, null, 2))
 
     const albumsReqURL = `${base}/catalogs/${catalogId}/albums`;
-    console.log(albumsReqURL);
     const albumsResp = await fetch(albumsReqURL, {
       headers: { "X-API-Key": key, Authorization: `Bearer ${accessToken}` },
     });
@@ -32,11 +30,11 @@ export async function getAlbums() {
 
     const items = assetsJson?.resources ?? [];
 
-    const photos = items.map((asset: any) => ({
+    const albums = items.map((asset: any) => ({
       id: asset.id,
       created: asset.created,
       updated: asset.updated,
-      renditions: asset.links ?? {},
+      links: asset.links ?? {},
       metadata: asset.payload ?? {},
     }));
 
@@ -44,7 +42,51 @@ export async function getAlbums() {
       ok: true as const,
       status: 200 as const,
       catalogId,
-      photos
+      albums: albums
+    };
+  } catch (err: any) {
+    console.error(err);
+    return {
+      ok: false as const,
+      status: 500,
+      message: `Error: ${err?.message ?? "unknown error"}`
+    };
+  }
+}
+
+export async function getAlbum(id: String) {
+  try {
+    const accessToken = await getAccessToken();
+    const catalogIdResp = await getCatalogID(accessToken);
+
+    if (!catalogIdResp.ok) {
+      return {
+        ok: false as const,
+        status: catalogIdResp.status || 500,
+        message: `Catalog Id Error: ${catalogIdResp.message}`
+      };
+    }
+    const catalogId = catalogIdResp.catalogId;
+
+    const albumURL = `${base}/catalogs/${catalogId}/albums/${id}`;
+    const albumResp = await fetch(albumURL, {
+      headers: { "X-API-Key": key, Authorization: `Bearer ${accessToken}` },
+    });
+
+    const assetsJson = parseJson(await albumResp.text());
+    if (!albumResp.ok) {
+      return {
+        ok: false as const,
+        status: albumResp.status || 500,
+        message: `Assets fetch failed: ${JSON.stringify(assetsJson, null, 2)}`
+      };
+    }
+
+    return {
+      ok: true as const,
+      status: 200 as const,
+      catalogId,
+      album: albumResp
     };
   } catch (err: any) {
     console.error(err);
