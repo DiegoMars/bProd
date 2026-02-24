@@ -4,7 +4,7 @@
 
 # import requests as req
 # from bs4 import BeautifulSoup as BS
-from selenium import webdriver
+# from selenium import webdriver
 
 ### Thing 1
 # res = req.get('https://www.geeksforgeeks.org/python/python-programming-language-tutorial/')
@@ -29,3 +29,9 @@ from selenium import webdriver
 ### Thing 3
 # driver = webdriver.Firefox() # Idk what this error means but it works nonetheless lmao
 # driver.get('https://www.geeksforgeeks.org/python/python-programming-language-tutorial/')
+
+### Thing 4
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.service import Service
+
